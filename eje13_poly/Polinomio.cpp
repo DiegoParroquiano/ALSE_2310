@@ -97,6 +97,15 @@ bool Polinomio::redefinir(std::string pol) {
 
 Polinomio Polinomio::operator +(Polinomio &p){
     Polinomio c;
+    c.redefinir( getString() );
+    
+    Termino* temp = p._polCabeza;
+    
+    while( temp != nullptr ){
+        c.nuevoTermino(temp->getC(), temp->getP() );
+        temp = temp->getSiguiente();
+    }
+    c.simplificar();
     return c;
 }
 
@@ -111,11 +120,32 @@ void Polinomio::operator =(Polinomio &p){
 
 Polinomio Polinomio::operator -(Polinomio &p){
     Polinomio c;
+    Termino* temp = _polCabeza;
+    
+    while( temp != nullptr ){
+        c.nuevoTermino(temp->getC(), temp->getP() );
+        temp = temp->getSiguiente();
+    }
+    
+    temp = p._polCabeza;
+    while( temp != nullptr ){
+        c.nuevoTermino(- temp->getC(), temp->getP() );
+        temp = temp->getSiguiente();
+    }
+
+    c.simplificar();
     return c;
 }
 
 Polinomio Polinomio::operator /(float f){
     Polinomio c;
+    Termino* temp = _polCabeza;
+    
+    while( temp != nullptr ){
+        c.nuevoTermino( temp->getC() / f , temp->getP() );
+        temp = temp->getSiguiente();
+    }
+    
     return c;
 }
 
@@ -136,6 +166,7 @@ bool Polinomio::borrar(){
 
     _polCabeza = NULL;
     _grado = -1;
+    return true;
 }
 
 int Polinomio::getGrado(){
@@ -170,6 +201,27 @@ void Polinomio::nuevoTermino(float c, int p){
 }
 
 void Polinomio::simplificar(){
+  Termino *t1, *t2, *t3;
+  t1 = _polCabeza;
+
+  while(t1 != NULL){
+    t2 = t1->getSiguiente();
+    while(t2 != NULL){
+      if(t1->getP() == t2->getP() ){
+        t1->setC( t1->getC() + t2->getC() );  // Actualizo el valor de C del primer término
+        // Ahora debo borrar el segundo término sin perder la conexión de la lista
+        t3 = t1->getSiguiente();
+        while(t3->getSiguiente() != t2 ){
+          t3 = t3->getSiguiente();
+        }
+        t3->setSiguiente( t2->getSiguiente() );
+        delete t2;
+        t2 = t3;
+      }
+      t2 = t2->getSiguiente();
+    }
+    t1 = t1->getSiguiente();
+  }
 
 }
 
